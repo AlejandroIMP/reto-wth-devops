@@ -1,14 +1,34 @@
-name: 'Dependency Review'
-on: [pull_request]
+name: PR Review
 
-permissions:
-  contents: read
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
 
 jobs:
-  dependency-review:
+  lint-and-test:
     runs-on: ubuntu-latest
+
     steps:
-     - name: 'Checkout Repository'
-       uses: actions/checkout@v4
-     - name: Dependency Review
-       uses: actions/dependency-review-action@v4
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'  # Especifica la versión de Node.js que necesitas
+
+    - name: Install dependencies
+      run: npm install
+
+    - name: Run Linter
+      run: npm run lint  # Asegúrate de tener un script de linter configurado en tu package.json
+
+    - name: Run Tests
+      run: npm test  # Asegúrate de tener pruebas configuradas
+    # Análisis de Seguridad con npm audit
+    - name: Run npm audit
+      run: npm audit --audit-level=high # Cambia el nivel según tu criterio (low, moderate, high, critical)
+
+    # Análisis de Seguridad de Código con ESLint (y plugins de seguridad)
+    - name: Run ESLint Security Check
+      run: npm run lint:security # Asegúrate de tener un script para revisar seguridad con ESLint
